@@ -48,30 +48,22 @@ class UserServiceTest {
 
     @Test
     void getAllUsers_ShouldReturnAllUsers() {
-        // Given
         List<User> users = Arrays.asList(testUser);
         when(userRepository.findAll()).thenReturn(users);
-
-        // When
         List<UserDto> result = userService.getAllusers();
 
-        // Then
         assertNotNull(result);
         assertEquals(1, result.size());
         assertEquals("Иван Иванов", result.get(0).getFullName());
         assertEquals("MONDAY 09:00 - 18:00", result.get(0).getNotificationPeriods());
         verify(userRepository).findAll();
     }
-
     @Test
     void getUserById_WhenUserExists_ShouldReturnUser() {
-        // Given
         when(userRepository.findById(1L)).thenReturn(Optional.of(testUser));
 
-        // When
         UserDto result = userService.getUserById(1L);
 
-        // Then
         assertNotNull(result);
         assertEquals("Иван Иванов", result.getFullName());
         verify(userRepository).findById(1L);
@@ -79,10 +71,8 @@ class UserServiceTest {
 
     @Test
     void getUserById_WhenUserNotExists_ShouldThrowException() {
-        // Given
         when(userRepository.findById(999L)).thenReturn(Optional.empty());
 
-        // When & Then
         RuntimeException exception = assertThrows(RuntimeException.class, 
             () -> userService.getUserById(999L));
         assertEquals("User not found with id: 999", exception.getMessage());
@@ -91,7 +81,6 @@ class UserServiceTest {
 
     @Test
     void createUser_ShouldCreateAndReturnUser() {
-        // Given
         UserDto newUserDto = new UserDto(null, "Петр Петров", "");
         User savedUser = new User();
         savedUser.setId(2);
@@ -99,10 +88,8 @@ class UserServiceTest {
         
         when(userRepository.save(any(User.class))).thenReturn(savedUser);
 
-        // When
         UserDto result = userService.createUser(newUserDto);
 
-        // Then
         assertNotNull(result);
         assertEquals("Петр Петров", result.getFullName());
         verify(userRepository).save(any(User.class));
@@ -110,15 +97,12 @@ class UserServiceTest {
 
     @Test
     void updateUser_WhenUserExists_ShouldUpdateAndReturnUser() {
-        // Given
         UserDto updateDto = new UserDto(1, "Иван Обновленный", "");
         when(userRepository.findById(1L)).thenReturn(Optional.of(testUser));
         when(userRepository.save(any(User.class))).thenReturn(testUser);
 
-        // When
         UserDto result = userService.updateUser(1L, updateDto);
 
-        // Then
         assertNotNull(result);
         verify(userRepository).findById(1L);
         verify(userRepository).save(any(User.class));
@@ -126,11 +110,9 @@ class UserServiceTest {
 
     @Test
     void updateUser_WhenUserNotExists_ShouldThrowException() {
-        // Given
         UserDto updateDto = new UserDto(999, "Несуществующий", "");
         when(userRepository.findById(999L)).thenReturn(Optional.empty());
 
-        // When & Then
         RuntimeException exception = assertThrows(RuntimeException.class, 
             () -> userService.updateUser(999L, updateDto));
         assertEquals("User not found with id: 999", exception.getMessage());
@@ -140,23 +122,18 @@ class UserServiceTest {
 
     @Test
     void deleteUser_WhenUserExists_ShouldDeleteUser() {
-        // Given
         when(userRepository.findById(1L)).thenReturn(Optional.of(testUser));
 
-        // When
         userService.deleteUser(1L);
 
-        // Then
         verify(userRepository).findById(1L);
         verify(userRepository).delete(testUser);
     }
 
     @Test
     void deleteUser_WhenUserNotExists_ShouldThrowException() {
-        // Given
         when(userRepository.findById(999L)).thenReturn(Optional.empty());
 
-        // When & Then
         RuntimeException exception = assertThrows(RuntimeException.class, 
             () -> userService.deleteUser(999L));
         assertEquals("User not found with id: 999", exception.getMessage());

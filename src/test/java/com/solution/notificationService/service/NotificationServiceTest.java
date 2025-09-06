@@ -58,13 +58,10 @@ class NotificationServiceTest {
 
     @Test
     void createNotification_ShouldCreateAndReturnNotification() {
-        // Given
         when(notificationRepository.save(any(Notification.class))).thenReturn(testNotification);
 
-        // When
         Notification result = notificationService.createNotification(testUser, testEvent, testDateTime);
 
-        // Then
         assertNotNull(result);
         assertEquals(testUser, result.getUser());
         assertEquals(testEvent, result.getEvent());
@@ -75,14 +72,11 @@ class NotificationServiceTest {
 
     @Test
     void sendNotification_WhenSuccessful_ShouldUpdateStatusToSent() {
-        // Given
         doNothing().when(webSocketService).sendNotification(testNotification);
         when(notificationRepository.save(any(Notification.class))).thenReturn(testNotification);
 
-        // When
         notificationService.sendNotification(testNotification);
 
-        // Then
         assertEquals(NotificationStatus.SENT, testNotification.getStatus());
         assertNotNull(testNotification.getSentAt());
         verify(webSocketService).sendNotification(testNotification);
@@ -91,11 +85,9 @@ class NotificationServiceTest {
 
     @Test
     void sendNotification_WhenWebSocketFails_ShouldUpdateStatusToFailed() {
-        // Given
         doThrow(new RuntimeException("WebSocket error")).when(webSocketService).sendNotification(testNotification);
         when(notificationRepository.save(any(Notification.class))).thenReturn(testNotification);
 
-        // When & Then
         RuntimeException exception = assertThrows(RuntimeException.class, 
             () -> notificationService.sendNotification(testNotification));
         

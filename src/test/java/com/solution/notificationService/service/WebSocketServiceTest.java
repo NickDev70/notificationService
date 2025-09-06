@@ -53,10 +53,8 @@ class WebSocketServiceTest {
 
     @Test
     void sendNotification_ShouldSendWebSocketMessage() {
-        // When
         webSocketService.sendNotification(testNotification);
 
-        // Then
         verify(messagingTemplate).convertAndSend(
             eq("/topic/notifications"), 
             any(WebSocketNotificationDto.class)

@@ -39,14 +39,11 @@ class EventControllerTest {
 
     @Test
     void getAllEvents_ShouldReturnAllEvents() {
-        // Given
         List<EventDto> events = Arrays.asList(testEventDto);
         when(eventService.getAllEvents()).thenReturn(events);
 
-        // When
         ResponseEntity<List<EventDto>> response = eventController.getAllEvents();
 
-        // Then
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertNotNull(response.getBody());
         List<EventDto> body = response.getBody();
@@ -58,13 +55,10 @@ class EventControllerTest {
 
     @Test
     void getEventById_WhenEventExists_ShouldReturnEvent() {
-        // Given
         when(eventService.getEventById(1)).thenReturn(Optional.of(testEventDto));
 
-        // When
         ResponseEntity<EventDto> response = eventController.getEventById(1);
 
-        // Then
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertNotNull(response.getBody());
         EventDto body = response.getBody();
@@ -75,27 +69,21 @@ class EventControllerTest {
 
     @Test
     void getEventById_WhenEventNotExists_ShouldReturnNotFound() {
-        // Given
         when(eventService.getEventById(999)).thenReturn(Optional.empty());
 
-        // When
         ResponseEntity<EventDto> response = eventController.getEventById(999);
 
-        // Then
         assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
         verify(eventService).getEventById(999);
     }
 
     @Test
     void createEvent_ShouldCreateAndReturnEvent() {
-        // Given
         EventDto newEventDto = new EventDto(null, "Новое событие", testDateTime);
         when(eventService.createEvent(newEventDto)).thenReturn(testEventDto);
 
-        // When
         ResponseEntity<EventDto> response = eventController.createEvent(newEventDto);
 
-        // Then
         assertEquals(HttpStatus.CREATED, response.getStatusCode());
         assertNotNull(response.getBody());
         EventDto body = response.getBody();
@@ -106,14 +94,11 @@ class EventControllerTest {
 
     @Test
     void updateEvent_WhenEventExists_ShouldUpdateAndReturnEvent() {
-        // Given
         EventDto updateDto = new EventDto(1, "Обновленное событие", testDateTime);
         when(eventService.updateEvent(1, updateDto)).thenReturn(Optional.of(updateDto));
 
-        // When
         ResponseEntity<EventDto> response = eventController.updateEvent(1, updateDto);
 
-        // Then
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertNotNull(response.getBody());
         EventDto body = response.getBody();
@@ -124,54 +109,42 @@ class EventControllerTest {
 
     @Test
     void updateEvent_WhenEventNotExists_ShouldReturnNotFound() {
-        // Given
         EventDto updateDto = new EventDto(999, "Несуществующее событие", testDateTime);
         when(eventService.updateEvent(999, updateDto)).thenReturn(Optional.empty());
 
-        // When
         ResponseEntity<EventDto> response = eventController.updateEvent(999, updateDto);
 
-        // Then
         assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
         verify(eventService).updateEvent(999, updateDto);
     }
 
     @Test
     void deleteEvent_WhenEventExists_ShouldReturnNoContent() {
-        // Given
         when(eventService.deleteEvent(1)).thenReturn(true);
 
-        // When
         ResponseEntity<Void> response = eventController.deleteEvent(1);
 
-        // Then
         assertEquals(HttpStatus.NO_CONTENT, response.getStatusCode());
         verify(eventService).deleteEvent(1);
     }
 
     @Test
     void deleteEvent_WhenEventNotExists_ShouldReturnNotFound() {
-        // Given
         when(eventService.deleteEvent(999)).thenReturn(false);
 
-        // When
         ResponseEntity<Void> response = eventController.deleteEvent(999);
 
-        // Then
         assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
         verify(eventService).deleteEvent(999);
     }
 
     @Test
     void searchEventsByMessage_ShouldReturnMatchingEvents() {
-        // Given
         List<EventDto> events = Arrays.asList(testEventDto);
         when(eventService.searchEventsByMessage("тест")).thenReturn(events);
 
-        // When
         ResponseEntity<List<EventDto>> response = eventController.searchEventsByMessage("тест");
 
-        // Then
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertNotNull(response.getBody());
         List<EventDto> body = response.getBody();
@@ -182,16 +155,13 @@ class EventControllerTest {
 
     @Test
     void getEventsByDateRange_ShouldReturnEventsInRange() {
-        // Given
         LocalDateTime start = LocalDateTime.of(2024, 1, 1, 0, 0);
         LocalDateTime end = LocalDateTime.of(2024, 1, 31, 23, 59);
         List<EventDto> events = Arrays.asList(testEventDto);
         when(eventService.getEventByDataRange(start, end)).thenReturn(events);
 
-        // When
         ResponseEntity<List<EventDto>> response = eventController.getEventsByDateRange(start, end);
 
-        // Then
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertNotNull(response.getBody());
         List<EventDto> body = response.getBody();
@@ -202,15 +172,12 @@ class EventControllerTest {
 
     @Test
     void getEventsAfterDate_ShouldReturnEventsAfterDate() {
-        // Given
         LocalDateTime afterDate = LocalDateTime.of(2024, 1, 1, 0, 0);
         List<EventDto> events = Arrays.asList(testEventDto);
         when(eventService.getEventsAfterDate(afterDate)).thenReturn(events);
 
-        // When
         ResponseEntity<List<EventDto>> response = eventController.getEventsAfterDate(afterDate);
 
-        // Then
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertNotNull(response.getBody());
         List<EventDto> body = response.getBody();
