@@ -69,7 +69,7 @@ GET http://localhost:8080/api/events
 2. URL: `ws://localhost:8080/ws`
 3. Отправьте сообщения из файла `websocket-test-examples.md`
 
-## 5. Полезные команды
+## 5. команды
 
 ```bash
 # Остановить сервисы
@@ -124,5 +124,3 @@ docker-compose -f docker/docker-compose.yml down -v
 - **Password:** notification123
 
 ---
-
-**Готово!** Приложение запущено и готово к тестированию. Используйте Swagger UI для интерактивного тестирования API или импортируйте Postman коллекцию для автоматизированного тестирования.
