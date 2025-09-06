@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WebSocket Test</title>
+    <script src="https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/stompjs@2.3.3/lib/stomp.min.js"></script>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .container { max-width: 800px; margin: 0 auto; }
+        .notification { 
+            border: 1px solid #ddd; 
+            padding: 10px; 
+            margin: 10px 0; 
+            border-radius: 5px;
+            background-color: #f9f9f9;
+        }
+        .status { font-weight: bold; }
+        .sent { color: green; }
+        .failed { color: red; }
+        .scheduled { color: orange; }
+        #messages { 
+            height: 400px; 
+            overflow-y: auto; 
+            border: 1px solid #ccc; 
+            padding: 10px; 
+            background-color: white;
+        }
+        button { 
+            padding: 10px 20px; 
+            margin: 5px; 
+            background-color: #007bff; 
+            color: white; 
+            border: none; 
+            border-radius: 3px; 
+            cursor: pointer;
+        }
+        button:hover { background-color: #0056b3; }
+        input { 
+            padding: 8px; 
+            margin: 5px; 
+            border: 1px solid #ddd; 
+            border-radius: 3px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>WebSocket Notification Test</h1>
+        
+        <div>
+            <input type="number" id="userId" placeholder="User ID" value="1">
+            <button onclick="connect()">Подключиться</button>
+            <button onclick="disconnect()">Отключиться</button>
+        </div>
+        
+        <div>
+            <input type="text" id="message" placeholder="Сообщение" value="Тестовое уведомление">
+            <button onclick="sendNotification()">Отправить уведомление</button>
+        </div>
+        
+        <div>
+            <h3>Статус соединения: <span id="status">Отключено</span></h3>
+        </div>
+        
+        <div>
+            <h3>Уведомления:</h3>
+            <div id="messages"></div>
+        </div>
+    </div>
+
+    <script>
+        let stompClient = null;
+        let userId = null;
+
+        function connect() {
+            userId = document.getElementById('userId').value;
+            if (!userId) {
+                alert('Введите User ID');
+                return;
+            }
+
+            const socket = new SockJS('/ws');
+            stompClient = Stomp.over(socket);
+            
+            stompClient.connect({}, function (frame) {
+                console.log('Подключено: ' + frame);
+                document.getElementById('status').textContent = 'Подключено';
+                document.getElementById('status').style.color = 'green';
+                
+                // Подписываемся на уведомления для конкретного пользователя
+                stompClient.subscribe('/topic/user/' + userId, function (message) {
+                    const notification = JSON.parse(message.body);
+                    addNotification(notification, 'user');
+                });
+                
+                // Подписываемся на общие уведомления
+                stompClient.subscribe('/topic/notifications', function (message) {
+                    const notification = JSON.parse(message.body);
+                    addNotification(notification, 'global');
+                });
+            }, function(error) {
+                console.log('Ошибка подключения: ' + error);
+                document.getElementById('status').textContent = 'Ошибка подключения';
+                document.getElementById('status').style.color = 'red';
+            });
+        }
+
+        function disconnect() {
+            if (stompClient !== null) {
+                stompClient.disconnect();
+            }
+            document.getElementById('status').textContent = 'Отключено';
+            document.getElementById('status').style.color = 'black';
+            console.log('Отключено');
+        }
+
+        function sendNotification() {
+            const message = document.getElementById('message').value;
+            if (!message || !stompClient) {
+                alert('Введите сообщение и подключитесь к WebSocket');
+                return;
+            }
+
+            const notification = {
+                userId: parseInt(userId),
+                message: message,
+                eventTitle: 'Тестовое событие',
+                eventDescription: message,
+                status: 'SENT',
+                sentAt: new Date().toISOString()
+            };
+
+            stompClient.send("/app/notification.send", {}, JSON.stringify(notification));
+        }
+
+        function addNotification(notification, type) {
+            const messagesDiv = document.getElementById('messages');
+            const notificationDiv = document.createElement('div');
+            notificationDiv.className = 'notification';
+            
+            const typeLabel = type === 'user' ? '[Личное]' : '[Общее]';
+            const statusClass = notification.status.toLowerCase();
+            
+            notificationDiv.innerHTML = `
+                <div><strong>${typeLabel} ID: ${notification.id || 'N/A'}</strong></div>
+                <div>Пользователь: ${notification.userId}</div>
+                <div>Событие: ${notification.eventTitle}</div>
+                <div>Описание: ${notification.eventDescription}</div>
+                <div>Сообщение: ${notification.message}</div>
+                <div class="status ${statusClass}">Статус: ${notification.status}</div>
+                <div>Время: ${new Date(notification.sentAt || notification.scheduledFor).toLocaleString()}</div>
+            `;
+            
+            messagesDiv.insertBefore(notificationDiv, messagesDiv.firstChild);
+        }
+
+        // Автоматическое подключение при загрузке страницы
+        window.onload = function() {
+            // Можно добавить автоматическое подключение здесь
+        };
+    </script>
+</body>
+</html>

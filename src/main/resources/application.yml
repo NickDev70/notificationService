@@ -1,0 +1,53 @@
+spring:
+  application:
+    name: notificationService
+  
+  datasource:
+    url: jdbc:postgresql://localhost:5432/notificationdb
+    username: notification
+    password: notification123
+    driver-class-name: org.postgresql.Driver
+  
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    show-sql: false
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        format_sql: true
+        type:
+          basic_enum_type: mapped
+  
+  flyway:
+    enabled: true
+    url: jdbc:postgresql://localhost:5432/notificationdb
+    user: notification
+    password: notification123
+    locations: classpath:db/migration
+    baseline-on-migrate: true
+
+server:
+  port: 8080
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics
+  endpoint:
+    health:
+      show-details: when-authorized
+
+springdoc:
+  api-docs:
+    path: /api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+
+logging:
+  level:
+    com.solution.notificationService: INFO
+    org.springframework.scheduling: DEBUG
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} - %msg%n"
